@@ -9,8 +9,8 @@
     
     <script>
       $(document).ready(function() {
-          var tmp_ubersuggest = $('#result').html();
-          $('#result').html(tmp_ubersuggest.replace(/,/g, '<br>').replace(/,,/g, '<br>'));
+          // var tmp_ubersuggest = $('#result').html();
+          // $('#result').html(tmp_ubersuggest.replace(/,/g, '<br>').replace(/,,/g, '<br>'));
 
           // canvas.js
           if($('#trends_data').text() != '') {
@@ -64,6 +64,6 @@
     <br><br>
     <div id="trends_data" style="font-size: 0px;"><%= trends_data %></div>
     <div id="trends" style="font-size: 16px;"><%= trends %></div>
-    <div id="result"><%= result %></div>
+    
   </body>
 </html>

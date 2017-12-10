@@ -117,28 +117,29 @@ router.get('/', function(req, res, next) {
   console.log(req.query.keywords);
   if (req.query.keywords != null) {
     var getGoogleTrends = new PythonShell('googleTrendsAPI.py', options_g);
-    var getUberSuggest = new PythonShell('crawl.py', options_u);
+    // var getUberSuggest = new PythonShell('crawl.py', options_u);
 
     getGoogleTrends.send(req.query.keywords);
-    getUberSuggest.send(req.query.keywords);
+    // getUberSuggest.send(req.query.keywords);
 
     getGoogleTrends.on('message', function (message) {
       console.log(message);
       googletrends = message;
-      
-    });
-
-    getUberSuggest.on('message', function (message) {
-      console.log(message);
-      ubersuggest = message;
-      var googletrends_local = googletrends;
       res.render('index', {
         title: 'Express',
-        result: ubersuggest,
+        // result: ubersuggest,
         trends_data: googletrends_local,
         trends: ''
       });
+      
     });
+
+    // getUberSuggest.on('message', function (message) {
+    //   console.log(message);
+    //   ubersuggest = message;
+    //   var googletrends_local = googletrends;
+      
+    // });
 
     getGoogleTrends.end(function (err) {
       if (err){
@@ -147,12 +148,12 @@ router.get('/', function(req, res, next) {
       console.log('finished');
     });
 
-    getUberSuggest.end(function (err) {
-      if (err){
-        throw err;
-      };
-      console.log('finished');
-    });
+    // getUberSuggest.end(function (err) {
+    //   if (err){
+    //     throw err;
+    //   };
+    //   console.log('finished');
+    // });
     // request('http://www.google.com', function(error, response, body) {
     //   console.log('error: ', error);
     //   console.log('body: ', body);
@@ -166,7 +167,7 @@ router.get('/', function(req, res, next) {
   else {
     res.render('index', {
       title: 'Express',
-      result: 'type your keyword and click generate to get quick results!',
+      // result: 'type your keyword and click generate to get quick results!',
       trends_data: '',
       trends: ''
     });
