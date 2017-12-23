@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from selenium import webdriver
+# from pyvirtualdisplay import Display
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
@@ -13,23 +14,33 @@ WINDOW_SIZE = "1920,1080"
 KEYWORDS = sys.stdin.read().splitlines()
 ELE = []
 
+# display = Display(visible=0, size=(1366, 768))
+# display.start()
+
 chrome_options = Options()
 chrome_options.add_argument("--headless")
 chrome_options.add_argument("--window-size=%s" % WINDOW_SIZE)
 chrome_options.binary_location = CHROME_PATH
 
 browser = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH,
-                           chrome_options=chrome_options
+                           chrome_options=chrome_options,
+                           service_args=['--ssl-protocol=any']
                           )
 browser.implicitly_wait(10)
 browser.set_window_position(-50000, 0)
 browser.get('https://ubersuggest.io/')
+# browser.get('https://moz.com/explorer/keyword/suggestions?locale=en-US')
 browser.find_element_by_id('keywordBox').clear()
+# browser.find_element_by_css_selector('div.omnisearch-input input').clear()
 browser.find_element_by_id('keywordBox').send_keys(KEYWORDS[0])
+# browser.find_element_by_css_selector('div.omnisearch-input input').send_keys(KEYWORDS[0])
 browser.find_element_by_id('suggest-button').click()
+# browser.find_element_by_css_selector('form.omnisearch-form button').click()
 browser.find_elements_by_tag_name('td span')
+# browser.find_elements_by_css_selector('td.keyword')
 soup = BeautifulSoup(browser.page_source, 'html.parser')
 for ele in soup.select('.dropdown-toggle span'):
+# for ele in soup.select('.keyword'):
     ELE.append(ele.text)
 print(json.dumps(ELE))
 

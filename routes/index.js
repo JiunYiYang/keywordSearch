@@ -14,11 +14,17 @@ var request = require('request');
 
 var PythonShell = require('python-shell');
 
-var options_u = {
-    mode: 'json',
+// var options_u = {
+//     mode: 'json',
+//     pythonOptions: ['-u'],
+//     scriptPath: './../views',
+// };
+
+var options_m = {
+    mode: 'text',
     pythonOptions: ['-u'],
     scriptPath: './../views',
-};
+}
 
 var options_g = {
     mode: 'text',
@@ -26,7 +32,8 @@ var options_g = {
     scriptPath: './../views',
 }
 
-var ubersuggest;
+// var ubersuggest;
+var mozPlanner;
 var googletrends;
 
 // function UberSuggest(go) {
@@ -117,10 +124,12 @@ router.get('/', function(req, res, next) {
   console.log(req.query.keywords);
   if (req.query.keywords != null) {
     var getGoogleTrends = new PythonShell('googleTrendsAPI.py', options_g);
-    var getUberSuggest = new PythonShell('crawl.py', options_u);
+    var getMozKeywords = new PythonShell('mozKeyword.py', options_m);
+    // var getUberSuggest = new PythonShell('crawl.py', options_u);
 
     getGoogleTrends.send(req.query.keywords);
-    getUberSuggest.send(req.query.keywords);
+    getMozKeywords.send(encodeURIComponent(req.query.keywords));
+    // getUberSuggest.send(req.query.keywords);
 
     getGoogleTrends.on('message', function (message) {
       console.log(message);
@@ -128,17 +137,31 @@ router.get('/', function(req, res, next) {
       
     });
 
-    getUberSuggest.on('message', function (message) {
+    getMozKeywords.on('message', function (message) {
       console.log(message);
-      ubersuggest = message;
+      mozPlanner = message;
       var googletrends_local = googletrends;
-      res.render('index', {
-        title: 'Express',
-        result: ubersuggest,
-        trends_data: googletrends_local,
-        trends: ''
-      });
+      if (googletrends_local != null) {
+        res.render('index', {
+          title: 'KeywordMetrics 1.0',
+          result: mozPlanner,
+          trends_data: googletrends_local,
+          trends: ''
+        });
+      }
     });
+
+    // getUberSuggest.on('message', function (message) {
+    //   console.log(message);
+    //   ubersuggest = message;
+    //   var googletrends_local = googletrends;
+    //   res.render('index', {
+    //     title: 'KeywordMetrics 1.0',
+    //     result: ubersuggest,
+    //     trends_data: googletrends_local,
+    //     trends: ''
+    //   });
+    // });
 
     getGoogleTrends.end(function (err) {
       if (err){
@@ -147,7 +170,7 @@ router.get('/', function(req, res, next) {
       console.log('finished');
     });
 
-    getUberSuggest.end(function (err) {
+    getMozKeywords.end(function (err) {
       if (err){
         throw err;
       };
@@ -165,8 +188,8 @@ router.get('/', function(req, res, next) {
   }
   else {
     res.render('index', {
-      title: 'Express',
-      result: 'type your keyword and click generate to get quick results!',
+      title: 'KeywordMetrics 1.0',
+      result: '',
       trends_data: '',
       trends: ''
     });

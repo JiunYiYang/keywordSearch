@@ -1,3 +1,4 @@
+
 from pytrends.request import TrendReq
 import time
 import sys
@@ -19,5 +20,9 @@ pytrend.build_payload(kw_list=[KEYWORDS[0]], cat=0, timeframe='today 12-m', geo=
 # pytrend2.build_payload(kw_list=['influencer', 'journalist'], cat=0, timeframe='today 12-m', geo='TW', gprop='')
 
 # Interest Over Time
-preload = json.loads(pytrend.interest_over_time().get(KEYWORDS[0]).to_json(orient='table'))['data']
-print(json.dumps(preload))
+if pytrend.interest_over_time().get(KEYWORDS[0]) is not None:
+    preload = json.loads(pytrend.interest_over_time().get(KEYWORDS[0]).to_json(orient='table'))['data']
+    print(json.dumps(preload, ensure_ascii=False))
+
+else:
+    print('none')

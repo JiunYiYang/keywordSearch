@@ -10,10 +10,11 @@
     <script>
       $(document).ready(function() {
           var tmp_ubersuggest = $('#result').html();
-          $('#result').html(tmp_ubersuggest.replace(/,/g, '<br>').replace(/,,/g, '<br>'));
+          $('#result').html(tmp_ubersuggest.replace(/", "/g, '<br>').replace(/\["/g, '<br>').replace(/\]"/g, '<br>'));
 
           // canvas.js
-          if($('#trends_data').text() != '') {
+          console.log($('#trends_data').text());
+          if($('#trends_data').text() != 'none') {
 
             var dataPoints = [];
             var tmp_googletrends = $.parseJSON($('#trends_data').text());
@@ -22,6 +23,9 @@
               return results[1] || 0;
             }
             var tmp_googletrends_keywords = $.urlParam('keywords');
+            var tmp_googletrends_keywords = tmp_googletrends_keywords.replace('+', ' ');
+            var tmp_googletrends_keywords = decodeURIComponent(tmp_googletrends_keywords);
+
             
             var chart = new CanvasJS.Chart("trends", {
               animationEnabled: true,
@@ -51,19 +55,67 @@
             }
             addData();
           }
+          else {
+            document.getElementById('trends').innerHTML = '<h2>Not Enough Data</h2>';
+          }
       });
+
+      function loading () {
+        document.getElementById('hint').innerText = 'loading...';
+        var elem = document.getElementById('bar');
+        var width = 0;
+        var id = setInterval(frame, 120);
+        function frame() {
+          if (width >= 100) {
+            clearInterval(id);
+          } else {
+            width++; 
+            elem.style.width = width + '%';
+            elem.innerHTML = width * 1  + '%';
+          }
+        }
+        document.getElementById('bar').innerHTML = '';
+        document.getElementById('hint').innerHTML = '';
+      }
+
+      function reload() {
+        location.reload();
+      }
+
     </script>
+    <style>
+      #loading {
+        width: 100%;
+        background-color: #fff;
+      }
+
+      #bar {
+        width: 0%;
+        height: 10px;
+        background-color: #081944;
+        text-align: center;
+        font-size: 10px;
+        line-height: 10px;
+        color: white;
+      }
+    </style>
   <body>
     <% include template/header.ejs %>
     
-    <h1>Form</h1>
+    <h1>KeywordMetrics 1.0</h1>
     <form id="search" method="GET" action="/">
-        <label>Keywords: </label><input id="keywords" name="keywords" type="text" /><br>
-        <button id="generate" type="submit" value="Generate">Generate</button><br>
+        <label>Keywords: </label><input id="keywords" name="keywords" type="text" /><br><br>
+        <button id="generate" type="submit" value="Generate" onclick="loading()">Generate</button><br>
     </form>
+    <br>
+    If you can't see data for the very first time, just try this one more time: <button id="reload" value="Reload" onclick="reload()">Reload</button>
     <br><br>
+    <div id="hint"></div>
+    <div id="loading">
+      <div id="bar">0%</div>
+    </div>
     <div id="trends_data" style="font-size: 0px;"><%= trends_data %></div>
-    <div id="trends" style="font-size: 16px;"><%= trends %></div>
+    <div id="trends" style="font-size: 16px; height: 400px;"><%= trends %></div><br><br>
     <div id="result"><%= result %></div>
   </body>
 </html>
