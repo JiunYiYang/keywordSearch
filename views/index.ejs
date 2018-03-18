@@ -10,22 +10,31 @@
     <script>
       $(document).ready(function() {
           var tmp_ubersuggest = $('#result').html();
-          $('#result').html(tmp_ubersuggest.replace(/", "/g, '<br>').replace(/\["/g, '<br>').replace(/\]"/g, '<br>'));
+          // $('#result').html(tmp_ubersuggest.replace(/", "/g, '<br>').replace(/\["/g, '<br>').replace(/\]"/g, '<br>'));
+          // html table
+
 
           // canvas.js
           console.log($('#trends_data').text());
-          if($('#trends_data').text() != 'none') {
+          if($('#trends_data').text() != '[]') {
 
-            var dataPoints = [];
+            var dataPoints = [[], [], [], [], []];
             var tmp_googletrends = $.parseJSON($('#trends_data').text());
-            $.urlParam = function(name){
-              var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-              return results[1] || 0;
+            $.urlParam = function(name) {
+              var results = new RegExp('[\?&]' + name + '=([^#]*)').exec(window.location.href);
+              return results[1].split('&' + name + '=') || 0;
             }
             var tmp_googletrends_keywords = $.urlParam('keywords');
-            var tmp_googletrends_keywords = tmp_googletrends_keywords.replace('+', ' ');
-            var tmp_googletrends_keywords = decodeURIComponent(tmp_googletrends_keywords);
-
+            console.log(tmp_googletrends_keywords);
+            for (var n=0; n<5; n++) {
+              if (tmp_googletrends_keywords[n] != undefined) {
+                tmp_googletrends_keywords[n] = tmp_googletrends_keywords[n].replace('+', ' ');
+                tmp_googletrends_keywords[n] = decodeURIComponent(tmp_googletrends_keywords[n]);
+              } else {
+                tmp_googletrends_keywords[n] = '';
+              }
+            }
+            console.log(tmp_googletrends_keywords);
             
             var chart = new CanvasJS.Chart("trends", {
               animationEnabled: true,
@@ -37,23 +46,82 @@
                 title: "Search Times",
                 titleFontSize: 24
               },
-              data: [{
+              toolTip: {
+                shared: "true"
+              },
+              legend: {
+                cursor: "pointer",
+                itemclick: toggleDataSeries
+              },
+              data: [{ 
                 type: "spline",
+                visible: true,
+                showInLegend: true,
                 yValueFormatString: "#,### Times",
-                dataPoints: dataPoints
+                name: tmp_googletrends_keywords[0],
+                dataPoints: dataPoints[0]
+              },
+              {
+                type: "spline",
+                visible: true,
+                showInLegend: true,
+                yValueFormatString: "#,### Times",
+                name: tmp_googletrends_keywords[1],
+                dataPoints: dataPoints[1]
+              },
+              {
+                type: "spline",
+                visible: true,
+                showInLegend: true,
+                yValueFormatString: "#,### Times",
+                name: tmp_googletrends_keywords[2],
+                dataPoints: dataPoints[2]
+              },
+              {
+                type: "spline",
+                visible: true,
+                showInLegend: true,
+                yValueFormatString: "#,### Times",
+                name: tmp_googletrends_keywords[3],
+                dataPoints: dataPoints[3]
+              },
+              {
+                type: "spline",
+                visible: true,
+                showInLegend: true,
+                yValueFormatString: "#,### Times",
+                name: tmp_googletrends_keywords[4],
+                dataPoints: dataPoints[4]
               }]
             });
 
             function addData(data) {
-              for (var i = 0; i < tmp_googletrends.length; i++) {
-                dataPoints.push({
-                  x: new Date(tmp_googletrends[i].date),
-                  y: tmp_googletrends[i][tmp_googletrends_keywords]
-                });
+              for (var i = 0; i < 5; i++) {
+                if (tmp_googletrends_keywords[i] != "") {
+                  for (var j = 0; j < tmp_googletrends[0].length; j++) {
+                    dataPoints[i].push({
+                      x: new Date(tmp_googletrends[0][j].date),
+                      y: tmp_googletrends[0][j][tmp_googletrends_keywords[i]]
+                    });
+                  }
+                } else {
+                  dataPoints[i] = [];
+                }
               }
               chart.render();
             }
             addData();
+            console.log(dataPoints);
+
+            function toggleDataSeries(e) {
+              if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+                e.dataSeries.visible = false;
+              } else {
+                e.dataSeries.visible = true;
+              }
+              chart.render();
+            }
+
           }
           else {
             document.getElementById('trends').innerHTML = '<h2>Not Enough Data</h2>';
@@ -104,7 +172,7 @@
     
     <h1>KeywordMetrics 1.0</h1>
     <form id="search" method="GET" action="/">
-        <label>Keywords: </label><input id="keywords" name="keywords" type="text" /><br><br>
+        <label>Keywords: </label><input id="keywords" name="keywords" type="text" /> <input id="keywords" name="keywords" type="text" /> <input id="keywords" name="keywords" type="text" /> <input id="keywords" name="keywords" type="text" /> <input id="keywords" name="keywords" type="text" /><br><br>
         <button id="generate" type="submit" value="Generate" onclick="loading()">Generate</button><br>
     </form>
     <br>

@@ -121,14 +121,22 @@ var googletrends;
 
 router.get('/', function(req, res, next) {
   
-  console.log(req.query.keywords);
+  var keywordQuery = req.query.keywords;
+  var queryEncodeList = [];
+  console.log(keywordQuery);
   if (req.query.keywords != null) {
-    var getGoogleTrends = new PythonShell('googleTrendsAPI.py', options_g);
+    var getGoogleTrends = new PythonShell('trendsByRegion.py', options_g);
     var getMozKeywords = new PythonShell('mozKeyword.py', options_m);
     // var getUberSuggest = new PythonShell('crawl.py', options_u);
 
-    getGoogleTrends.send(req.query.keywords);
-    getMozKeywords.send(encodeURIComponent(req.query.keywords));
+    for (var i=0; i<=4; i++) {
+      queryEncodeList.push(encodeURIComponent(keywordQuery[i]));
+    }
+    console.log(queryEncodeList);
+    // for (var i=0; i<= keywordQuery.length; i++) {
+    getGoogleTrends.send(keywordQuery);
+    getMozKeywords.send(queryEncodeList);
+    // }
     // getUberSuggest.send(req.query.keywords);
 
     getGoogleTrends.on('message', function (message) {
